@@ -1,0 +1,37 @@
+version: '3.5'
+
+# use https://github.com/mhauri/dev.local for development
+
+services:
+  app:
+    image: mhauri/php-apache:8.1
+    container_name: auth-app-1
+    environment:
+      COMPOSER_MEMORY_LIMIT: -1
+    volumes:
+      - ./entrypoint:/entrypoint:cached
+      - ./..:/var/www/html/:cached
+      - ~/.composer:/.composer:cached
+    links:
+      - db
+    ports:
+      - "8000:80"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    entrypoint: /var/www/html/.dev/entrypoint
+    networks:
+      - auth
+
+  db:
+    image: mariadb:10.3
+    container_name: auth-db-1
+    environment:
+      MYSQL_ROOT_PASSWORD: passw0rd
+      MYSQL_DATABASE: auth
+    volumes:
+      - ./tmp/db/data:/var/lib/mysql:cached
+    networks:
+      - auth
+
+networks:
+    auth:

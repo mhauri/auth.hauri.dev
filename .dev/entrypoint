@@ -1,0 +1,11 @@
+#!/bin/sh
+set -e
+
+echo "memory_limit = 2G" > /usr/local/etc/php/conf.d/memory-limit.ini
+
+crontab /var/www/html/.dev/crontab
+
+su - root -c "sed -ri -e 's!/var/www/html!/var/www/html/public!g' /etc/apache2/sites-available/*.conf"
+su - root -c "sed -ri -e 's!/var/www/!/var/www/html/public!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf"
+
+exec /usr/sbin/apache2ctl -D FOREGROUND

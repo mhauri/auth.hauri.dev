@@ -1,0 +1,59 @@
+#!/bin/bash
+
+up() {
+  docker-compose -p auth -f $(dirname ${0})/../.dev/docker-compose.yml pull
+  docker-compose -p auth -f $(dirname ${0})/../.dev/docker-compose.yml up -d
+}
+
+down() {
+  docker-compose -p auth -f $(dirname ${0})/../.dev/docker-compose.yml down
+}
+
+ssh() {
+
+  if [ "$1" = "" ]; then
+    $1 = "app"
+  fi
+
+  if [ "$1" = "app" ]; then
+    docker-compose -p auth -f $(dirname ${0})/../.dev/docker-compose.yml exec -u root:root $1 /bin/bash
+
+  elif [ "$1" = "db" ]; then
+    docker-compose -p auth -f $(dirname ${0})/../.dev/docker-compose.yml exec $1 mysql -u root -ppassw0rd auth --default-character-set=utf8
+
+  else
+    echo "Unknown container '$1'"
+    exit 1
+
+  fi
+}
+
+help() {
+  cat << EOF
+
+bin/dev COMMAND
+
+Commands are:
+up          Starts the dev environment
+down        Stops the dev environment
+ssh app|db  Opens a shell in the specified container
+
+EOF
+}
+
+if [ "$1" = "up" ]; then
+  down
+  up
+
+elif [ "$1" = "down" ]; then
+  down
+
+elif [ "$1" = "ssh" ]; then
+  ssh $2
+
+else
+  echo "Unknown operation '$1'"
+  help
+  exit 1
+
+fi
