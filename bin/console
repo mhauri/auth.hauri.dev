@@ -2,8 +2,8 @@
 
 if command -v php81 &> /dev/null
 then
-    php81 artisan
+    php81 artisan $@
     exit
 fi
 
-php artisan
+php artisan $@
